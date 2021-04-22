@@ -27,6 +27,7 @@
     "@radix-ui/react-primitive": "workspace:*",
     "@radix-ui/react-use-callback-ref": "workspace:*",
     "@radix-ui/react-use-controllable-state": "workspace:*",
+    "@radix-ui/react-use-direction": "workspace:*",
     "@radix-ui/react-use-size": "workspace:*"
   },
   "peerDependencies": {
