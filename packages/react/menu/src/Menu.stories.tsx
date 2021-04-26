@@ -11,6 +11,10 @@ import {
   MenuRadioItem,
   MenuItemIndicator,
   MenuSeparator,
+  SubMenu,
+  SubMenuContent,
+  SubMenuTrigger,
+  SubMenuItem,
 } from './Menu';
 import { css } from '../../../../stitches.config';
 import { foodGroups } from '../../../../test-data/foods';
@@ -19,6 +23,56 @@ export default {
   title: 'Components/Menu',
   excludeStories: ['TickIcon', 'styledComponents', 'classes'],
 };
+
+function CustomSubMenu({ children }: { children?: React.ReactNode }) {
+  return (
+    <SubMenu>
+      <SubMenuTrigger className={itemClass}>Sub Menu →</SubMenuTrigger>
+      <SubMenuContent className={contentClass}>{children}</SubMenuContent>
+    </SubMenu>
+  );
+}
+
+export const NestedSubMenus = () => (
+  <Menu>
+    <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
+      Undo
+    </MenuItem>
+    <CustomSubMenu>
+      <SubMenuItem className={itemClass}>Item</SubMenuItem>
+      <CustomSubMenu>
+        <SubMenuItem className={itemClass}>Item</SubMenuItem>
+        <SubMenuItem className={itemClass}>Item</SubMenuItem>
+        <CustomSubMenu>
+          <SubMenuItem className={itemClass}>Item</SubMenuItem>
+          <SubMenuItem className={itemClass}>Item</SubMenuItem>
+          <CustomSubMenu>
+            <SubMenuItem className={itemClass}>Item</SubMenuItem>
+            <SubMenuItem className={itemClass}>Item</SubMenuItem>
+            <CustomSubMenu>
+              <SubMenuItem className={itemClass}>Item</SubMenuItem>
+              <SubMenuItem className={itemClass}>Item</SubMenuItem>
+            </CustomSubMenu>
+          </CustomSubMenu>
+        </CustomSubMenu>
+      </CustomSubMenu>
+      <SubMenuItem className={itemClass}>Item</SubMenuItem>
+    </CustomSubMenu>
+    <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
+      Redo
+    </MenuItem>
+    <MenuSeparator className={separatorClass} />
+    <MenuItem className={itemClass} disabled onSelect={() => window.alert('cut')}>
+      Cut
+    </MenuItem>
+    <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
+      Copy
+    </MenuItem>
+    <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
+      Paste
+    </MenuItem>
+  </Menu>
+);
 
 export const Styled = () => (
   <Menu>
