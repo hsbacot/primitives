@@ -11,12 +11,13 @@ import { DismissableLayer } from '@radix-ui/react-dismissable-layer';
 import { FocusScope } from '@radix-ui/react-focus-scope';
 import { Portal } from '@radix-ui/react-portal';
 import { useFocusGuards } from '@radix-ui/react-focus-guards';
+import { Slot } from '@radix-ui/react-slot';
+import { useControllableState } from '@radix-ui/react-use-controllable-state';
 import { RemoveScroll } from 'react-remove-scroll';
 import { hideOthers } from 'aria-hidden';
 import { useMenuTypeahead, useMenuTypeaheadItem } from './useMenuTypeahead';
 
 import type * as Polymorphic from '@radix-ui/react-polymorphic';
-import { Slot } from '@radix-ui/react-slot';
 
 type FocusScopeProps = React.ComponentProps<typeof FocusScope>;
 type DismissableLayerProps = React.ComponentProps<typeof DismissableLayer>;
@@ -640,10 +641,29 @@ type SubMenuContextValue = {
 
 const [SubMenuProvider, useSubMenuContext] = createContext<SubMenuContextValue>(SUB_MENU_NAME);
 
-const SubMenu: React.FC = ({ children }) => {
-  const [open, setOpen] = React.useState(false);
-  const [focusFirstItem, setFocusFirstItem] = React.useState(false);
+type SubMenuOwnProps = {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?(open: boolean): void;
+};
+
+const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
+  const { children, open: openProp, defaultOpen, onOpenChange } = props;
   const triggerRef = React.useRef<HTMLDivElement>(null);
+  const [focusFirstItem, setFocusFirstItem] = React.useState(false);
+  const [renderChildren, setRenderChildren] = React.useState(false);
+  const [open = false, setOpen] = useControllableState({
+    prop: openProp,
+    defaultProp: defaultOpen,
+    onChange: onOpenChange,
+  });
+
+  // we must defer rendering of nested children until after the parent is ready
+  // this is to ensure that measurements are applied correctly relative to the parent and
+  // that DismissableLayers are appended in the correct order when using `DefaultOpen`
+  React.useLayoutEffect(() => {
+    setRenderChildren(true);
+  }, []);
 
   return (
     <SubMenuProvider
@@ -652,14 +672,14 @@ const SubMenu: React.FC = ({ children }) => {
       onMouseOpen={React.useCallback(() => {
         setOpen(true);
         setFocusFirstItem(false);
-      }, [])}
+      }, [setOpen])}
       onKeyboardOpen={React.useCallback(() => {
         setOpen(true);
         setFocusFirstItem(true);
-      }, [])}
+      }, [setOpen])}
     >
       <Menu open={open} onOpenChange={setOpen}>
-        {children}
+        {renderChildren && children}
       </Menu>
     </SubMenuProvider>
   );

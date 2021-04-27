@@ -23,56 +23,6 @@ export default {
   excludeStories: ['TickIcon', 'styledComponents', 'classes'],
 };
 
-function CustomSubMenu({ children }: { children?: React.ReactNode }) {
-  return (
-    <SubMenu>
-      <SubMenuTrigger className={itemClass}>Sub Menu →</SubMenuTrigger>
-      <SubMenuContent className={contentClass}>{children}</SubMenuContent>
-    </SubMenu>
-  );
-}
-
-export const NestedSubMenus = () => (
-  <Menu>
-    <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
-      Undo
-    </MenuItem>
-    <CustomSubMenu>
-      <MenuItem className={itemClass}>Item</MenuItem>
-      <CustomSubMenu>
-        <MenuItem className={itemClass}>Item</MenuItem>
-        <MenuItem className={itemClass}>Item</MenuItem>
-        <CustomSubMenu>
-          <MenuItem className={itemClass}>Item</MenuItem>
-          <MenuItem className={itemClass}>Item</MenuItem>
-          <CustomSubMenu>
-            <MenuItem className={itemClass}>Item</MenuItem>
-            <MenuItem className={itemClass}>Item</MenuItem>
-            <CustomSubMenu>
-              <MenuItem className={itemClass}>Item</MenuItem>
-              <MenuItem className={itemClass}>Item</MenuItem>
-            </CustomSubMenu>
-          </CustomSubMenu>
-        </CustomSubMenu>
-      </CustomSubMenu>
-      <MenuItem className={itemClass}>Item</MenuItem>
-    </CustomSubMenu>
-    <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
-      Redo
-    </MenuItem>
-    <MenuSeparator className={separatorClass} />
-    <MenuItem className={itemClass} disabled onSelect={() => window.alert('cut')}>
-      Cut
-    </MenuItem>
-    <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
-      Copy
-    </MenuItem>
-    <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
-      Paste
-    </MenuItem>
-  </Menu>
-);
-
 export const Styled = () => (
   <Menu>
     <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
@@ -301,6 +251,76 @@ export const Animated = () => {
         </MenuRadioGroup>
       </Menu>
     </>
+  );
+};
+
+export const SubMenus = () => (
+  <Menu>
+    <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
+      Undo
+    </MenuItem>
+    <CustomSubMenu>
+      <MenuItem className={itemClass}>Item</MenuItem>
+      <CustomSubMenu>
+        <MenuItem className={itemClass} disabled>
+          Disabled
+        </MenuItem>
+        <MenuItem className={itemClass}>Item</MenuItem>
+        <CustomSubMenu>
+          <MenuItem className={itemClass}>Item</MenuItem>
+          <MenuItem className={itemClass}>Item</MenuItem>
+        </CustomSubMenu>
+      </CustomSubMenu>
+      <MenuItem className={itemClass}>Item</MenuItem>
+    </CustomSubMenu>
+    <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
+      Redo
+    </MenuItem>
+    <MenuSeparator className={separatorClass} />
+    <MenuItem className={itemClass} disabled onSelect={() => window.alert('cut')}>
+      Cut
+    </MenuItem>
+    <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
+      Copy
+    </MenuItem>
+    <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
+      Paste
+    </MenuItem>
+  </Menu>
+);
+
+export const SubMenuDefaultOpen = () => (
+  <Menu>
+    <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
+      Undo
+    </MenuItem>
+    <CustomSubMenu defaultOpen>
+      <MenuItem className={itemClass}>Item</MenuItem>
+      <MenuItem className={itemClass}>Item</MenuItem>
+    </CustomSubMenu>
+    <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
+      Redo
+    </MenuItem>
+    <MenuSeparator className={separatorClass} />
+    <MenuItem className={itemClass} disabled onSelect={() => window.alert('cut')}>
+      Cut
+    </MenuItem>
+    <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
+      Copy
+    </MenuItem>
+    <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
+      Paste
+    </MenuItem>
+  </Menu>
+);
+
+const CustomSubMenu: React.FC<React.ComponentProps<typeof SubMenu>> = (props) => {
+  const { children, ...subMenuProps } = props;
+  return (
+    <SubMenu {...subMenuProps}>
+      <SubMenuTrigger className={itemClass}>Sub Menu →</SubMenuTrigger>
+      <SubMenuContent className={contentClass}>{children}</SubMenuContent>
+    </SubMenu>
   );
 };
 
