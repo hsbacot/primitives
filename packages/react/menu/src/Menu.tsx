@@ -489,7 +489,7 @@ type MenuCheckboxItemOwnProps = Polymorphic.Merge<
   }
 >;
 
-type MenyCheckboxItemPrimitive = Polymorphic.ForwardRefComponent<
+type MenuCheckboxItemPrimitive = Polymorphic.ForwardRefComponent<
   Polymorphic.IntrinsicElement<typeof MenuItem>,
   MenuCheckboxItemOwnProps
 >;
@@ -512,7 +512,7 @@ const MenuCheckboxItem = React.forwardRef((props, forwardedRef) => {
       />
     </ItemIndicatorContext.Provider>
   );
-}) as MenyCheckboxItemPrimitive;
+}) as MenuCheckboxItemPrimitive;
 
 MenuCheckboxItem.displayName = CHECKBOX_ITEM_NAME;
 
