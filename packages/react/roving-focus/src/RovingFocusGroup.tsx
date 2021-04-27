@@ -114,8 +114,7 @@ function useRovingFocus({ disabled, active = false }: UseRovingFocusItemOptions)
     onKeyDown: (event: React.KeyboardEvent) => {
       const focusIntent = getFocusIntent(event, context.orientation, context.dir);
 
-      // stop key events from propagating to parent in case we're in a nested roving focus group
-      if (KEYS.includes(event.key)) event.stopPropagation();
+      if (event.target !== event.currentTarget) return;
 
       if (focusIntent !== undefined) {
         event.preventDefault();
@@ -149,7 +148,6 @@ const MAP_KEY_TO_FOCUS_INTENT: Record<string, FocusIntent> = {
   PageUp: 'first', Home: 'first',
   PageDown: 'last', End: 'last',
 };
-const KEYS = Object.keys(MAP_KEY_TO_FOCUS_INTENT);
 
 function getDirectionAwareKey(key: string, dir?: Direction) {
   if (dir !== 'rtl') return key;
