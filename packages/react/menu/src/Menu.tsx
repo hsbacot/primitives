@@ -712,6 +712,7 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
       <MenuItem
         aria-expanded={context.open ? true : undefined}
         data-state={getOpenState(context.open)}
+        disabled={disabled}
         {...triggerProps}
         ref={composeRefs(forwardedRef, subMenuContext.triggerRef)}
         onSelect={composeEventHandlers(triggerProps.onSelect, (event) => {
