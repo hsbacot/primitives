@@ -665,6 +665,13 @@ const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
     setRenderChildren(true);
   }, []);
 
+  // React.useEffect(() => {
+  //   const doThing = () => setOpen(false);
+
+  //   document.addEventListener(ITEM_SELECT, doThing);
+  //   return () => document.removeEventListener(ITEM_SELECT, doThing);
+  // }, [setOpen]);
+
   return (
     <SubMenuProvider
       triggerRef={triggerRef}
@@ -727,6 +734,9 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
             subMenuContext.onMouseOpen();
           }
         })}
+        onMouseUp={composeEventHandlers(triggerProps.onMouseUp, (event) => {
+          event.stopPropagation();
+        })}
         onMouseLeave={composeEventHandlers(triggerProps.onMouseLeave, (event) => {
           // prevent refocusing content which causes the submenu to immediately close
           event.preventDefault();
@@ -734,6 +744,7 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
         onKeyDown={composeEventHandlers(triggerProps.onKeyDown, (event) => {
           if (!disabled) {
             if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
+              event.stopPropagation();
               subMenuContext.onKeyboardOpen();
             }
           }
@@ -779,11 +790,17 @@ const SubMenuContent = React.forwardRef((props, forwardedRef) => {
           (items[0] as HTMLElement | undefined)?.focus();
         }
       })}
+      onMouseUp={composeEventHandlers(contentProps.onMouseUp, (event) => {
+        context.onOpenChange(false);
+      })}
       onKeyDown={composeEventHandlers(contentProps.onKeyDown, (event) => {
-        if (event.key === 'ArrowLeft') {
-          // prevent menus higher in the tree from closing
-          event.stopPropagation();
+        if (event.key === 'ArrowLeft' || event.key === 'Enter' || event.key === ' ') {
           context.onOpenChange(false);
+        }
+
+        if (event.key === 'ArrowLeft') {
+          // only close a single level
+          event.stopPropagation();
         }
       })}
       onPointerDownOutside={composeEventHandlers(contentProps.onPointerDownOutside, (event) => {
