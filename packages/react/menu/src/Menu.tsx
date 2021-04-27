@@ -627,27 +627,27 @@ const MenuItemIndicator = React.forwardRef((props, forwardedRef) => {
 MenuItemIndicator.displayName = ITEM_INDICATOR_NAME;
 
 /* -------------------------------------------------------------------------------------------------
- * SubMenu
+ * MenuSubMenu
  * -----------------------------------------------------------------------------------------------*/
 
-const SUB_MENU_NAME = 'SubMenu';
+const SUB_MENU_NAME = 'MenuSubMenu';
 
-type SubMenuContextValue = {
+type MenuSubMenuContextValue = {
   triggerRef: React.RefObject<HTMLDivElement>;
   focusFirstItem: boolean;
   onMouseOpen(): void;
   onKeyboardOpen(): void;
 };
 
-const [SubMenuProvider, useSubMenuContext] = createContext<SubMenuContextValue>(SUB_MENU_NAME);
+const [SubMenuProvider, useSubMenuContext] = createContext<MenuSubMenuContextValue>(SUB_MENU_NAME);
 
-type SubMenuOwnProps = {
+type MenuSubMenuOwnProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?(open: boolean): void;
 };
 
-const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
+const MenuSubMenu: React.FC<MenuSubMenuOwnProps> = (props) => {
   const { children, open: openProp, defaultOpen, onOpenChange } = props;
   const triggerRef = React.useRef<HTMLDivElement>(null);
   const [focusFirstItem, setFocusFirstItem] = React.useState(false);
@@ -695,24 +695,24 @@ const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
   );
 };
 
-SubMenu.displayName = SUB_MENU_NAME;
+MenuSubMenu.displayName = SUB_MENU_NAME;
 
 /* -------------------------------------------------------------------------------------------------
- * SubMenuTrigger
+ * MenuSubMenuTrigger
  * -----------------------------------------------------------------------------------------------*/
 
-const SUB_MENU_TRIGGER_NAME = 'SubMenuTrigger';
+const SUB_MENU_TRIGGER_NAME = 'MenuSubMenuTrigger';
 
-type SubMenuTriggerOwnProps = Polymorphic.Merge<
+type MenuSubMenuTriggerOwnProps = Polymorphic.Merge<
   Polymorphic.OwnProps<typeof MenuItem>,
   Polymorphic.OwnProps<typeof MenuAnchor>
 >;
-type SubMenuTriggerPrimitive = Polymorphic.ForwardRefComponent<
+type MenuSubMenuTriggerPrimitive = Polymorphic.ForwardRefComponent<
   Polymorphic.IntrinsicElement<typeof MenuItem>,
-  SubMenuTriggerOwnProps
+  MenuSubMenuTriggerOwnProps
 >;
 
-const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
+const MenuSubMenuTrigger = React.forwardRef((props, forwardedRef) => {
   const { disabled, ...triggerProps } = props;
   const context = useMenuContext(SUB_MENU_TRIGGER_NAME);
   const subMenuContext = useSubMenuContext(SUB_MENU_TRIGGER_NAME);
@@ -754,23 +754,23 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
       />
     </MenuAnchor>
   );
-}) as SubMenuTriggerPrimitive;
+}) as MenuSubMenuTriggerPrimitive;
 
-SubMenuTrigger.displayName = SUB_MENU_TRIGGER_NAME;
+MenuSubMenuTrigger.displayName = SUB_MENU_TRIGGER_NAME;
 
 /* -------------------------------------------------------------------------------------------------
- * SubMenuContent
+ * MenuSubMenuContent
  * -----------------------------------------------------------------------------------------------*/
 
-const SUB_MENU_CONTENT_NAME = 'SubMenuContent';
+const SUB_MENU_CONTENT_NAME = 'MenuSubMenuContent';
 
-type SubMenuContentOwnProps = Polymorphic.OwnProps<typeof MenuContent>;
-type SubMenuContentPrimitive = Polymorphic.ForwardRefComponent<
+type MenuSubMenuContentOwnProps = Polymorphic.OwnProps<typeof MenuContent>;
+type MenuSubMenuContentPrimitive = Polymorphic.ForwardRefComponent<
   Polymorphic.IntrinsicElement<typeof MenuContent>,
-  SubMenuContentOwnProps
+  MenuSubMenuContentOwnProps
 >;
 
-const SubMenuContent = React.forwardRef((props, forwardedRef) => {
+const MenuSubMenuContent = React.forwardRef((props, forwardedRef) => {
   const { ...contentProps } = props;
   const context = useMenuContext(SUB_MENU_CONTENT_NAME);
   const subMenuContext = useSubMenuContext(SUB_MENU_CONTENT_NAME);
@@ -811,9 +811,9 @@ const SubMenuContent = React.forwardRef((props, forwardedRef) => {
       })}
     />
   );
-}) as SubMenuContentPrimitive;
+}) as MenuSubMenuContentPrimitive;
 
-SubMenuContent.displayName = SUB_MENU_CONTENT_NAME;
+MenuSubMenuContent.displayName = SUB_MENU_CONTENT_NAME;
 
 /* ---------------------------------------------------------------------------------------------- */
 
@@ -851,6 +851,9 @@ const RadioItem = MenuRadioItem;
 const ItemIndicator = MenuItemIndicator;
 const Separator = MenuSeparator;
 const Arrow = MenuArrow;
+const SubMenu = MenuSubMenu;
+const SubMenuTrigger = MenuSubMenuTrigger;
+const SubMenuContent = MenuSubMenuContent;
 
 export {
   Menu,
@@ -865,10 +868,9 @@ export {
   MenuItemIndicator,
   MenuSeparator,
   MenuArrow,
-  //
-  SubMenu,
-  SubMenuTrigger,
-  SubMenuContent,
+  MenuSubMenu,
+  MenuSubMenuTrigger,
+  MenuSubMenuContent,
   //
   Root,
   Anchor,
@@ -882,4 +884,7 @@ export {
   ItemIndicator,
   Separator,
   Arrow,
+  SubMenu,
+  SubMenuTrigger,
+  SubMenuContent,
 };

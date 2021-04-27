@@ -11,9 +11,9 @@ import {
   MenuRadioItem,
   MenuItemIndicator,
   MenuSeparator,
-  SubMenu,
-  SubMenuContent,
-  SubMenuTrigger,
+  MenuSubMenu,
+  MenuSubMenuContent,
+  MenuSubMenuTrigger,
 } from './Menu';
 import { css } from '../../../../stitches.config';
 import { foodGroups } from '../../../../test-data/foods';
@@ -257,34 +257,30 @@ export const Animated = () => {
 export const SubMenus = () => (
   <Menu>
     <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
-      Undo
+      Item
     </MenuItem>
-    <CustomSubMenu>
+    <SubMenu>
       <MenuItem className={itemClass}>Item</MenuItem>
-      <CustomSubMenu>
+      <SubMenu>
         <MenuItem className={itemClass} disabled>
           Disabled
         </MenuItem>
         <MenuItem className={itemClass}>Item</MenuItem>
-        <CustomSubMenu>
+        <SubMenu>
+          <MenuItem className={itemClass} onSelect={() => window.alert('select')}>
+            Select
+          </MenuItem>
           <MenuItem className={itemClass}>Item</MenuItem>
-          <MenuItem className={itemClass}>Item</MenuItem>
-        </CustomSubMenu>
-      </CustomSubMenu>
+        </SubMenu>
+      </SubMenu>
       <MenuItem className={itemClass}>Item</MenuItem>
-    </CustomSubMenu>
+    </SubMenu>
     <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
-      Redo
+      Item
     </MenuItem>
     <MenuSeparator className={separatorClass} />
-    <MenuItem className={itemClass} disabled onSelect={() => window.alert('cut')}>
-      Cut
-    </MenuItem>
-    <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
-      Copy
-    </MenuItem>
-    <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
-      Paste
+    <MenuItem className={itemClass} onSelect={() => window.alert('cut')}>
+      Item
     </MenuItem>
   </Menu>
 );
@@ -294,10 +290,10 @@ export const SubMenuDefaultOpen = () => (
     <MenuItem className={itemClass} onSelect={() => window.alert('undo')}>
       Undo
     </MenuItem>
-    <CustomSubMenu defaultOpen>
+    <SubMenu defaultOpen>
       <MenuItem className={itemClass}>Item</MenuItem>
       <MenuItem className={itemClass}>Item</MenuItem>
-    </CustomSubMenu>
+    </SubMenu>
     <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
       Redo
     </MenuItem>
@@ -305,22 +301,86 @@ export const SubMenuDefaultOpen = () => (
     <MenuItem className={itemClass} disabled onSelect={() => window.alert('cut')}>
       Cut
     </MenuItem>
-    <MenuItem className={itemClass} onSelect={() => window.alert('copy')}>
-      Copy
-    </MenuItem>
-    <MenuItem className={itemClass} onSelect={() => window.alert('paste')}>
-      Paste
-    </MenuItem>
   </Menu>
 );
 
-const CustomSubMenu: React.FC<React.ComponentProps<typeof SubMenu>> = (props) => {
+export const SubMenuCheckboxItems = () => {
+  const checkboxItems = [
+    { label: 'Bold', state: React.useState(false) },
+    { label: 'Italic', state: React.useState(true) },
+    { label: 'Underline', state: React.useState(false) },
+    { label: 'Strikethrough', state: React.useState(false), disabled: true },
+  ];
+
+  return (
+    <Menu>
+      <MenuItem className={itemClass} onSelect={() => window.alert('show')}>
+        Show fonts
+      </MenuItem>
+      <MenuItem className={itemClass} onSelect={() => window.alert('bigger')}>
+        Bigger
+      </MenuItem>
+      <MenuItem className={itemClass} onSelect={() => window.alert('smaller')}>
+        Smaller
+      </MenuItem>
+      <SubMenu>
+        {checkboxItems.map(({ label, state: [checked, setChecked], disabled }) => (
+          <MenuCheckboxItem
+            key={label}
+            className={itemClass}
+            checked={checked}
+            onCheckedChange={setChecked}
+            disabled={disabled}
+          >
+            {label}
+            <MenuItemIndicator>
+              <TickIcon />
+            </MenuItemIndicator>
+          </MenuCheckboxItem>
+        ))}
+      </SubMenu>
+    </Menu>
+  );
+};
+
+export const SubMenuRadioItems = () => {
+  const files = ['README.md', 'index.js', 'page.css'];
+  const [file, setFile] = React.useState(files[1]);
+
+  return (
+    <Menu>
+      <MenuItem className={itemClass} onSelect={() => window.alert('minimize')}>
+        Minimize window
+      </MenuItem>
+      <MenuItem className={itemClass} onSelect={() => window.alert('zoom')}>
+        Zoom
+      </MenuItem>
+      <MenuItem className={itemClass} onSelect={() => window.alert('smaller')}>
+        Smaller
+      </MenuItem>
+      <SubMenu defaultOpen>
+        <MenuRadioGroup value={file} onValueChange={setFile}>
+          {files.map((file) => (
+            <MenuRadioItem key={file} className={itemClass} value={file}>
+              {file}
+              <MenuItemIndicator>
+                <TickIcon />
+              </MenuItemIndicator>
+            </MenuRadioItem>
+          ))}
+        </MenuRadioGroup>
+      </SubMenu>
+    </Menu>
+  );
+};
+
+const SubMenu: React.FC<React.ComponentProps<typeof MenuSubMenu>> = (props) => {
   const { children, ...subMenuProps } = props;
   return (
-    <SubMenu {...subMenuProps}>
-      <SubMenuTrigger className={itemClass}>Sub Menu →</SubMenuTrigger>
-      <SubMenuContent className={contentClass}>{children}</SubMenuContent>
-    </SubMenu>
+    <MenuSubMenu {...subMenuProps}>
+      <MenuSubMenuTrigger className={itemClass}>Sub Menu →</MenuSubMenuTrigger>
+      <MenuSubMenuContent className={contentClass}>{children}</MenuSubMenuContent>
+    </MenuSubMenu>
   );
 };
 
