@@ -47,6 +47,17 @@ type MenuOwnProps = {
 const Menu: React.FC<MenuOwnProps> = (props) => {
   const { open = false, children, onOpenChange } = props;
   const handleOpenChange = useCallbackRef(onOpenChange);
+
+  React.useEffect(() => {
+    const handleMenuClose = (event: Event) => {
+      if (event.defaultPrevented) return;
+      handleOpenChange(false);
+    };
+
+    document.addEventListener(ITEM_SELECT, handleMenuClose);
+    return () => document.removeEventListener(ITEM_SELECT, handleMenuClose);
+  }, [handleOpenChange]);
+
   return (
     <PopperPrimitive.Root>
       <MenuProvider open={open} onOpenChange={handleOpenChange}>
@@ -372,7 +383,6 @@ const MenuItem = React.forwardRef((props, forwardedRef) => {
   const { disabled, textValue, onSelect, ...itemProps } = props;
   const menuItemRef = React.useRef<HTMLDivElement>(null);
   const composedRef = useComposedRefs(forwardedRef, menuItemRef);
-  const context = useMenuContext(ITEM_NAME);
   const contentContext = useMenuContentContext(ITEM_NAME);
   const rovingFocusProps = useRovingFocus({ disabled });
 
@@ -398,8 +408,6 @@ const MenuItem = React.forwardRef((props, forwardedRef) => {
         cancelable: true,
       });
       menuItem.dispatchEvent(itemSelectEvent);
-      if (itemSelectEvent.defaultPrevented) return;
-      context.onOpenChange?.(false);
     }
   };
 
@@ -664,16 +672,6 @@ const MenuSubMenu: React.FC<MenuSubMenuOwnProps> = (props) => {
   React.useLayoutEffect(() => {
     setRenderChildren(true);
   }, []);
-
-  // collapse all open menus on item selection
-  React.useEffect(() => {
-    const handleMenuClose = () => {
-      setOpen(false);
-    };
-
-    document.addEventListener(ITEM_SELECT, handleMenuClose);
-    return () => document.removeEventListener(ITEM_SELECT, handleMenuClose);
-  }, [setOpen]);
 
   return (
     <SubMenuProvider
