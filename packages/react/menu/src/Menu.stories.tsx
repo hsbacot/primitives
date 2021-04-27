@@ -14,7 +14,6 @@ import {
   SubMenu,
   SubMenuContent,
   SubMenuTrigger,
-  SubMenuItem,
 } from './Menu';
 import { css } from '../../../../stitches.config';
 import { foodGroups } from '../../../../test-data/foods';
@@ -39,24 +38,24 @@ export const NestedSubMenus = () => (
       Undo
     </MenuItem>
     <CustomSubMenu>
-      <SubMenuItem className={itemClass}>Item</SubMenuItem>
+      <MenuItem className={itemClass}>Item</MenuItem>
       <CustomSubMenu>
-        <SubMenuItem className={itemClass}>Item</SubMenuItem>
-        <SubMenuItem className={itemClass}>Item</SubMenuItem>
+        <MenuItem className={itemClass}>Item</MenuItem>
+        <MenuItem className={itemClass}>Item</MenuItem>
         <CustomSubMenu>
-          <SubMenuItem className={itemClass}>Item</SubMenuItem>
-          <SubMenuItem className={itemClass}>Item</SubMenuItem>
+          <MenuItem className={itemClass}>Item</MenuItem>
+          <MenuItem className={itemClass}>Item</MenuItem>
           <CustomSubMenu>
-            <SubMenuItem className={itemClass}>Item</SubMenuItem>
-            <SubMenuItem className={itemClass}>Item</SubMenuItem>
+            <MenuItem className={itemClass}>Item</MenuItem>
+            <MenuItem className={itemClass}>Item</MenuItem>
             <CustomSubMenu>
-              <SubMenuItem className={itemClass}>Item</SubMenuItem>
-              <SubMenuItem className={itemClass}>Item</SubMenuItem>
+              <MenuItem className={itemClass}>Item</MenuItem>
+              <MenuItem className={itemClass}>Item</MenuItem>
             </CustomSubMenu>
           </CustomSubMenu>
         </CustomSubMenu>
       </CustomSubMenu>
-      <SubMenuItem className={itemClass}>Item</SubMenuItem>
+      <MenuItem className={itemClass}>Item</MenuItem>
     </CustomSubMenu>
     <MenuItem className={itemClass} onSelect={() => window.alert('redo')}>
       Redo

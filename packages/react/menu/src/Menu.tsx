@@ -392,7 +392,10 @@ const MenuItem = React.forwardRef((props, forwardedRef) => {
   const handleSelect = () => {
     const menuItem = menuItemRef.current;
     if (!disabled && menuItem) {
-      const itemSelectEvent = new Event(ITEM_SELECT, { bubbles: true, cancelable: true });
+      const itemSelectEvent = new Event(ITEM_SELECT, {
+        bubbles: true,
+        cancelable: true,
+      });
       menuItem.dispatchEvent(itemSelectEvent);
       if (itemSelectEvent.defaultPrevented) return;
       context.onOpenChange?.(false);
@@ -622,31 +625,6 @@ const MenuItemIndicator = React.forwardRef((props, forwardedRef) => {
 
 MenuItemIndicator.displayName = ITEM_INDICATOR_NAME;
 
-/* ---------------------------------------------------------------------------------------------- */
-
-const MenuAnchor = extendPrimitive(PopperPrimitive.Anchor, { displayName: 'MenuAnchor' });
-const MenuGroup = extendPrimitive(Primitive, {
-  defaultProps: { role: 'group' },
-  displayName: 'MenuGroup',
-});
-const MenuLabel = extendPrimitive(Primitive, { displayName: 'MenuLabel' });
-const MenuSeparator = extendPrimitive(Primitive, {
-  defaultProps: { role: 'separator', 'aria-orientation': 'horizontal' },
-  displayName: 'MenuSeparator ',
-});
-const MenuArrow = extendPrimitive(PopperPrimitive.Arrow, { displayName: 'MenuArrow' });
-
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-
 /* -------------------------------------------------------------------------------------------------
  * SubMenu
  * -----------------------------------------------------------------------------------------------*/
@@ -654,43 +632,31 @@ const MenuArrow = extendPrimitive(PopperPrimitive.Arrow, { displayName: 'MenuArr
 const SUB_MENU_NAME = 'SubMenu';
 
 type SubMenuContextValue = {
-  open: boolean;
-  onOpen(): void;
-  onClose(): void;
-  keyboardOpen: boolean;
-  onKeyboardOpen(): void;
   triggerRef: React.RefObject<HTMLDivElement>;
-  parentContext: MenuContextValue;
+  focusFirstItem: boolean;
+  onMouseOpen(): void;
+  onKeyboardOpen(): void;
 };
 
 const [SubMenuProvider, useSubMenuContext] = createContext<SubMenuContextValue>(SUB_MENU_NAME);
 
-type SubMenuOwnProps = {
-  open?: boolean;
-  onOpenChange?(open: boolean): void;
-};
-
-const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
+const SubMenu: React.FC = ({ children }) => {
   const [open, setOpen] = React.useState(false);
-  const [keyboardOpen, setKeyboardOpen] = React.useState(false);
+  const [focusFirstItem, setFocusFirstItem] = React.useState(false);
   const triggerRef = React.useRef<HTMLDivElement>(null);
-  const { children } = props;
 
   return (
     <SubMenuProvider
       triggerRef={triggerRef}
-      open={open}
-      onOpen={React.useCallback(() => {
+      focusFirstItem={focusFirstItem}
+      onMouseOpen={React.useCallback(() => {
         setOpen(true);
-        setKeyboardOpen(false);
+        setFocusFirstItem(false);
       }, [])}
-      keyboardOpen={keyboardOpen}
       onKeyboardOpen={React.useCallback(() => {
         setOpen(true);
-        setKeyboardOpen(true);
+        setFocusFirstItem(true);
       }, [])}
-      onClose={React.useCallback(() => setOpen(false), [])}
-      parentContext={useMenuContext(CONTENT_NAME)}
     >
       <Menu open={open} onOpenChange={setOpen}>
         {children}
@@ -702,101 +668,55 @@ const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
 SubMenu.displayName = SUB_MENU_NAME;
 
 /* -------------------------------------------------------------------------------------------------
- * SubMenuContent
- * -----------------------------------------------------------------------------------------------*/
-
-const SUB_MENU_CONTENT_NAME = 'SubMenuContent';
-
-type SubMenuContentOwnProps = Polymorphic.Merge<Polymorphic.OwnProps<typeof MenuContent>, {}>;
-type SubMenuContentPrimitive = Polymorphic.ForwardRefComponent<
-  Polymorphic.IntrinsicElement<typeof MenuContent>,
-  SubMenuContentOwnProps
->;
-
-const SubMenuContent = React.forwardRef((props, forwardedRef) => {
-  const subMenuContext = useSubMenuContext(SUB_MENU_NAME);
-
-  return (
-    <MenuContent
-      ref={forwardedRef}
-      side="right"
-      portalled
-      onOpenAutoFocus={
-        subMenuContext.keyboardOpen
-          ? (event) => {
-              // console.log(event.target, 'target');
-              const content = event.target as HTMLElement;
-
-              if (content) {
-                const items = Array.from(content.querySelectorAll(ENABLED_ITEM_SELECTOR));
-                (items[0] as HTMLElement | undefined)?.focus();
-              }
-            }
-          : undefined
-      }
-      disableOutsidePointerEvents={false}
-      disableOutsideScroll
-      onPointerDownOutside={(event) => {
-        const wasTrigger = subMenuContext.triggerRef.current?.contains(event.target as HTMLElement);
-
-        // the sub menu should stay open when the mouse is over the trigger
-        // so we prevent needlessly dismissing when clicking it again
-        if (wasTrigger) {
-          event.preventDefault();
-        }
-      }}
-      align="start"
-      {...props}
-    />
-  );
-}) as SubMenuContentPrimitive;
-
-SubMenuContent.displayName = SUB_MENU_CONTENT_NAME;
-
-/* -------------------------------------------------------------------------------------------------
  * SubMenuTrigger
  * -----------------------------------------------------------------------------------------------*/
 
 const SUB_MENU_TRIGGER_NAME = 'SubMenuTrigger';
 
-type SubMenuTriggerOwnProps = Polymorphic.Merge<Polymorphic.OwnProps<typeof SubMenuItem>, {}>;
+type SubMenuTriggerOwnProps = Polymorphic.Merge<
+  Polymorphic.OwnProps<typeof MenuItem>,
+  Polymorphic.OwnProps<typeof MenuAnchor>
+>;
 type SubMenuTriggerPrimitive = Polymorphic.ForwardRefComponent<
-  Polymorphic.IntrinsicElement<typeof SubMenuItem>,
+  Polymorphic.IntrinsicElement<typeof MenuItem>,
   SubMenuTriggerOwnProps
 >;
 
 const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
-  const subMenuContext = useSubMenuContext(SUB_MENU_NAME);
+  const { disabled, ...triggerProps } = props;
+  const context = useMenuContext(SUB_MENU_TRIGGER_NAME);
+  const subMenuContext = useSubMenuContext(SUB_MENU_TRIGGER_NAME);
 
   return (
     <MenuAnchor as={Slot}>
-      <SubMenuItem
-        {...props}
+      <MenuItem
+        aria-expanded={context.open ? true : undefined}
+        data-state={getOpenState(context.open)}
+        {...triggerProps}
         ref={composeRefs(forwardedRef, subMenuContext.triggerRef)}
-        onSelect={(event: Event) => {
+        onSelect={composeEventHandlers(triggerProps.onSelect, (event) => {
+          // prevent closing of the content when already open
           event.preventDefault();
-          subMenuContext.onOpen();
-        }}
-        onMouseMove={(event) => {
-          // Prevent refocusing of anchor which causes the submenu to immediately close
+        })}
+        onMouseMove={composeEventHandlers(triggerProps.onMouseMove, (event) => {
+          // prevent refocusing of anchor which causes the submenu to immediately close
           event.preventDefault();
-        }}
-        onMouseEnter={() => {
-          subMenuContext.onOpen();
-        }}
-        onMouseLeave={(event) => {
-          // Prevent refocusing the menu content which causes the submenu to immediately close
-          event.preventDefault();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowLeft') {
-            subMenuContext.parentContext.onOpenChange(false);
+
+          if (!disabled) {
+            subMenuContext.onMouseOpen();
           }
-          if (event.key === 'ArrowRight') {
-            subMenuContext.onKeyboardOpen();
+        })}
+        onMouseLeave={composeEventHandlers(triggerProps.onMouseLeave, (event) => {
+          // prevent refocusing content which causes the submenu to immediately close
+          event.preventDefault();
+        })}
+        onKeyDown={composeEventHandlers(triggerProps.onKeyDown, (event) => {
+          if (!disabled) {
+            if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
+              subMenuContext.onKeyboardOpen();
+            }
           }
-        }}
-        data-state={subMenuContext.open ? 'open' : 'closed'}
+        })}
       />
     </MenuAnchor>
   );
@@ -805,46 +725,75 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
 SubMenuTrigger.displayName = SUB_MENU_TRIGGER_NAME;
 
 /* -------------------------------------------------------------------------------------------------
- * SubMenuItem
+ * SubMenuContent
  * -----------------------------------------------------------------------------------------------*/
 
-const SUB_MENU_ITEM_NAME = 'SubMenuItem';
+const SUB_MENU_CONTENT_NAME = 'SubMenuContent';
 
-type SubMenuItemOwnProps = Polymorphic.Merge<Polymorphic.OwnProps<typeof MenuItem>, {}>;
-type SubMenuItemPrimitive = Polymorphic.ForwardRefComponent<
-  Polymorphic.IntrinsicElement<typeof MenuItem>,
-  SubMenuItemOwnProps
+type SubMenuContentOwnProps = Polymorphic.OwnProps<typeof MenuContent>;
+type SubMenuContentPrimitive = Polymorphic.ForwardRefComponent<
+  Polymorphic.IntrinsicElement<typeof MenuContent>,
+  SubMenuContentOwnProps
 >;
 
-const SubMenuItem = React.forwardRef((props, forwardedRef) => {
-  const subMenuContext = useSubMenuContext(SUB_MENU_NAME);
+const SubMenuContent = React.forwardRef((props, forwardedRef) => {
+  const { ...contentProps } = props;
+  const context = useMenuContext(SUB_MENU_CONTENT_NAME);
+  const subMenuContext = useSubMenuContext(SUB_MENU_CONTENT_NAME);
 
   return (
-    <MenuItem
+    <MenuContent
+      disableOutsidePointerEvents={false}
+      disableOutsideScroll
+      side="right"
+      align="start"
+      portalled
+      {...contentProps}
       ref={forwardedRef}
-      {...props}
-      onKeyDown={composeEventHandlers(props.onKeyDown, (event) => {
+      onOpenAutoFocus={composeEventHandlers(contentProps.onOpenAutoFocus, (event) => {
+        const content = event.target as HTMLElement;
+
+        if (content && subMenuContext.focusFirstItem) {
+          const items = Array.from(content.querySelectorAll(ENABLED_ITEM_SELECTOR));
+          (items[0] as HTMLElement | undefined)?.focus();
+        }
+      })}
+      onKeyDown={composeEventHandlers(contentProps.onKeyDown, (event) => {
         if (event.key === 'ArrowLeft') {
-          subMenuContext.onClose();
+          // prevent menus higher in the tree from closing
+          event.stopPropagation();
+          context.onOpenChange(false);
+        }
+      })}
+      onPointerDownOutside={composeEventHandlers(contentProps.onPointerDownOutside, (event) => {
+        const wasTrigger = subMenuContext.triggerRef.current?.contains(event.target as HTMLElement);
+
+        // the sub menu will remain open while the mouse is over the trigger
+        // so we prevent it needlessly dismissing when clicking it
+        if (wasTrigger) {
+          event.preventDefault();
         }
       })}
     />
   );
-}) as SubMenuItemPrimitive;
+}) as SubMenuContentPrimitive;
 
-SubMenuItem.displayName = SUB_MENU_ITEM_NAME;
+SubMenuContent.displayName = SUB_MENU_CONTENT_NAME;
 
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
-/* -----------------------------------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------------------------------- */
+
+const MenuAnchor = extendPrimitive(PopperPrimitive.Anchor, { displayName: 'MenuAnchor' });
+const MenuGroup = extendPrimitive(Primitive, {
+  defaultProps: { role: 'group' },
+  displayName: 'MenuGroup',
+});
+const MenuLabel = extendPrimitive(Primitive, { displayName: 'MenuLabel' });
+const MenuSeparator = extendPrimitive(Primitive, {
+  defaultProps: { role: 'separator', 'aria-orientation': 'horizontal' },
+  displayName: 'MenuSeparator',
+});
+const MenuArrow = extendPrimitive(PopperPrimitive.Arrow, { displayName: 'MenuArrow' });
+
 /* -----------------------------------------------------------------------------------------------*/
 
 function getOpenState(open: boolean) {
@@ -885,7 +834,6 @@ export {
   SubMenu,
   SubMenuTrigger,
   SubMenuContent,
-  SubMenuItem,
   //
   Root,
   Anchor,
