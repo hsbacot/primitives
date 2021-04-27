@@ -660,17 +660,20 @@ const SubMenu: React.FC<SubMenuOwnProps> = (props) => {
 
   // we must defer rendering of nested children until after the parent is ready
   // this is to ensure that measurements are applied correctly relative to the parent and
-  // that DismissableLayers are appended in the correct order when using `DefaultOpen`
+  // that dismissable layers are appended in the correct order when using `DefaultOpen`
   React.useLayoutEffect(() => {
     setRenderChildren(true);
   }, []);
 
-  // React.useEffect(() => {
-  //   const doThing = () => setOpen(false);
+  // collapse all open menus on item selection
+  React.useEffect(() => {
+    const handleMenuClose = () => {
+      setOpen(false);
+    };
 
-  //   document.addEventListener(ITEM_SELECT, doThing);
-  //   return () => document.removeEventListener(ITEM_SELECT, doThing);
-  // }, [setOpen]);
+    document.addEventListener(ITEM_SELECT, handleMenuClose);
+    return () => document.removeEventListener(ITEM_SELECT, handleMenuClose);
+  }, [setOpen]);
 
   return (
     <SubMenuProvider
@@ -725,6 +728,9 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
         onSelect={composeEventHandlers(triggerProps.onSelect, (event) => {
           // prevent closing of the content when already open
           event.preventDefault();
+
+          // prevent closing of the content when already open
+          event.stopPropagation();
         })}
         onMouseMove={composeEventHandlers(triggerProps.onMouseMove, (event) => {
           // prevent refocusing of anchor which causes the submenu to immediately close
@@ -734,9 +740,6 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
             subMenuContext.onMouseOpen();
           }
         })}
-        onMouseUp={composeEventHandlers(triggerProps.onMouseUp, (event) => {
-          event.stopPropagation();
-        })}
         onMouseLeave={composeEventHandlers(triggerProps.onMouseLeave, (event) => {
           // prevent refocusing content which causes the submenu to immediately close
           event.preventDefault();
@@ -744,7 +747,6 @@ const SubMenuTrigger = React.forwardRef((props, forwardedRef) => {
         onKeyDown={composeEventHandlers(triggerProps.onKeyDown, (event) => {
           if (!disabled) {
             if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowRight') {
-              event.stopPropagation();
               subMenuContext.onKeyboardOpen();
             }
           }
@@ -790,16 +792,11 @@ const SubMenuContent = React.forwardRef((props, forwardedRef) => {
           (items[0] as HTMLElement | undefined)?.focus();
         }
       })}
-      onMouseUp={composeEventHandlers(contentProps.onMouseUp, (event) => {
-        context.onOpenChange(false);
-      })}
       onKeyDown={composeEventHandlers(contentProps.onKeyDown, (event) => {
-        if (event.key === 'ArrowLeft' || event.key === 'Enter' || event.key === ' ') {
-          context.onOpenChange(false);
-        }
-
         if (event.key === 'ArrowLeft') {
-          // only close a single level
+          context.onOpenChange(false);
+
+          // close a single level only
           event.stopPropagation();
         }
       })}
